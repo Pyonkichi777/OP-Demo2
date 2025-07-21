@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Orchestrator Platform - Demo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-content">
+                <div class="title-section">
+                    <h1 class="app-title">
+                        <i class="fas fa-network-wired"></i>
+                        <span class="glow-text">Device Orchestrator Platform Demo</span>
+                    </h1>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Data Usage</span>
+                        <span class="stat-value" id="totalData">0&nbsp;GB</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">System Status</span>
+                        <span class="stat-value system-status" id="systemStatus">Normal</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Alerts Section -->
+        <section class="alerts-section">
+            <div class="alerts-container">
+                <div class="alert-card fault">
+                    <div class="alert-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h4>Fault Information</h4>
+                        <button class="alert-refresh-btn" title="Update Fault Information">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-item">
+                            <span class="alert-time">14:23</span>
+                            <span class="alert-message">Cellular - Sub: Signal degradation detected</span>
+                            <span class="alert-severity critical">CRITICAL</span>
+                        </div>
+                        <div class="alert-item">
+                            <span class="alert-time">12:15</span>
+                            <span class="alert-message">WiFi: Connection timeout on subnet 192.168.1.x</span>
+                            <span class="alert-severity warning">WARNING</span>
+                        </div>
+                        <div class="alert-item">
+                            <span class="alert-time">09:45</span>
+                            <span class="alert-message">Satellite: Temporary signal loss during storm</span>
+                            <span class="alert-severity resolved">RESOLVED</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert-card maintenance">
+                    <div class="alert-header">
+                        <i class="fas fa-tools"></i>
+                        <h4>Maintenance Information</h4>
+                        <button class="alert-refresh-btn" title="Update Maintenance Information">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-item">
+                            <span class="alert-time">22:00</span>
+                            <span class="alert-message">Scheduled: Satellite firmware update</span>
+                        </div>
+                        <div class="alert-item">
+                            <span class="alert-time">Tomorrow</span>
+                            <span class="alert-message">Cellular - Main: Routine maintenance window</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Control Panel Section -->
+        <section class="control-panel">
+            <div class="control-container">
+                <div class="control-group">
+                    <button class="control-btn primary">
+                        <i class="fas fa-list"></i>
+                        Device List
+                    </button>
+                    <button class="control-btn secondary">
+                        <i class="fas fa-chart-line"></i>
+                        Details Output
+                    </button>
+                    <button class="control-btn secondary">
+                        <i class="fas fa-download"></i>
+                        Export Data
+                    </button>
+                    <button class="control-btn warning">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+                
+                <div class="search-group">
+                    <div class="search-input-container">
+                        <input type="text" class="search-input" placeholder="Search devices, metrics, logs...">
+                        <button class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <button class="control-btn filter">
+                        <i class="fas fa-filter"></i>
+                        Filter
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Device List Modal -->
+        <div class="device-list-modal" id="deviceListModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Device List Overview</h3>
+                    <button class="modal-close" id="closeModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="device-table">
+                        <div class="table-header">
+                            <div class="table-cell">Device</div>
+                            <div class="table-cell">Status</div>
+                            <div class="table-cell">Signal</div>
+                            <div class="table-cell">Speed</div>
+                            <div class="table-cell">Plan</div>
+                            <div class="table-cell">Data Usage</div>
+                            <div class="table-cell">Action</div>
+                        </div>
+                        <div class="table-row" data-device="cellular-main">
+                            <div class="table-cell">
+                                <div class="device-info-compact">
+                                    <i class="fas fa-signal"></i>
+                                    <span>Cellular - Main</span>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <span class="status-badge" id="modal-cellular-main-status">Disabled</span>
+                            </div>
+                            <div class="table-cell" id="modal-cellular-main-signal">0/5</div>
+                            <div class="table-cell" id="modal-cellular-main-speed">0 Mbps</div>
+                            <div class="table-cell" id="modal-cellular-main-plan">Premium Unlimited</div>
+                            <div class="table-cell" id="modal-cellular-main-data">0&nbsp;GB</div>
+                            <div class="table-cell">
+                                <button class="table-toggle-btn" data-device="cellular-main">Toggle</button>
+                            </div>
+                        </div>
+                        <div class="table-row" data-device="cellular-sub">
+                            <div class="table-cell">
+                                <div class="device-info-compact">
+                                    <i class="fas fa-signal"></i>
+                                    <span>Cellular - Sub</span>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <span class="status-badge" id="modal-cellular-sub-status">Disabled</span>
+                            </div>
+                            <div class="table-cell" id="modal-cellular-sub-signal">0/5</div>
+                            <div class="table-cell" id="modal-cellular-sub-speed">0 Mbps</div>
+                            <div class="table-cell" id="modal-cellular-sub-plan">Standard 50GB</div>
+                            <div class="table-cell" id="modal-cellular-sub-data">0&nbsp;GB</div>
+                            <div class="table-cell">
+                                <button class="table-toggle-btn" data-device="cellular-sub">Toggle</button>
+                            </div>
+                        </div>
+                        <div class="table-row" data-device="wifi">
+                            <div class="table-cell">
+                                <div class="device-info-compact">
+                                    <i class="fas fa-wifi"></i>
+                                    <span>WiFi</span>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <span class="status-badge" id="modal-wifi-status">Disabled</span>
+                            </div>
+                            <div class="table-cell" id="modal-wifi-signal">0/5</div>
+                            <div class="table-cell" id="modal-wifi-speed">0 Mbps</div>
+                            <div class="table-cell" id="modal-wifi-plan">Business Unlimited</div>
+                            <div class="table-cell" id="modal-wifi-data">0&nbsp;GB</div>
+                            <div class="table-cell">
+                                <button class="table-toggle-btn" data-device="wifi">Toggle</button>
+                            </div>
+                        </div>
+                        <div class="table-row" data-device="satellite">
+                            <div class="table-cell">
+                                <div class="device-info-compact">
+                                    <i class="fas fa-satellite-dish"></i>
+                                    <span>Satellite</span>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <span class="status-badge" id="modal-satellite-status">Disabled</span>
+                            </div>
+                            <div class="table-cell" id="modal-satellite-signal">0/5</div>
+                            <div class="table-cell" id="modal-satellite-speed">0 Mbps</div>
+                            <div class="table-cell" id="modal-satellite-plan">Enterprise 200GB</div>
+                            <div class="table-cell" id="modal-satellite-data">0&nbsp;GB</div>
+                            <div class="table-cell">
+                                <button class="table-toggle-btn" data-device="satellite">Toggle</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main class="main-content">
+            <div class="devices-grid">
+                <!-- Cellular Main Device -->
+                <div class="device-card cellular" data-device="cellular-main">
+                    <div class="device-header">
+                        <div class="device-icon">
+                            <i class="fas fa-signal"></i>
+                        </div>
+                        <div class="device-info">
+                            <h3 class="device-name">Cellular - Main</h3>
+                            <span class="device-type">LTE/5G Primary</span>
+                        </div>
+                        <div class="device-status">
+                            <span class="status-indicator" id="cellular-main-status"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="device-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Signal Strength</span>
+                            <div class="signal-bars" id="cellular-main-signal">
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Data Usage</span>
+                            <span class="metric-value" id="cellular-main-data">0&nbsp;GB</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Speed</span>
+                            <span class="metric-value" id="cellular-main-speed">0 Mbps</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Plan</span>
+                            <span class="metric-value" id="cellular-main-plan">Premium Unlimited</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Data Limit</span>
+                            <span class="metric-value unlimited" id="cellular-main-limit">Unlimited</span>
+                        </div>
+                    </div>
+
+                    <div class="device-chart">
+                        <h5 class="chart-subtitle">Data Usage History</h5>
+                        <div class="device-chart-container">
+                            <canvas id="cellular-mainChart" width="300" height="120"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="device-controls">
+                        <button class="toggle-btn" id="cellular-main-toggle" data-device="cellular-main">
+                            Enable
+                            <i class="fas fa-power-off"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cellular Sub Device -->
+                <div class="device-card cellular-sub" data-device="cellular-sub">
+                    <div class="device-header">
+                        <div class="device-icon">
+                            <i class="fas fa-signal"></i>
+                        </div>
+                        <div class="device-info">
+                            <h3 class="device-name">Cellular - Sub</h3>
+                            <span class="device-type">LTE/5G Secondary</span>
+                        </div>
+                        <div class="device-status">
+                            <span class="status-indicator" id="cellular-sub-status"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="device-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Signal Strength</span>
+                            <div class="signal-bars" id="cellular-sub-signal">
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Data Usage</span>
+                            <span class="metric-value" id="cellular-sub-data">0&nbsp;GB</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Speed</span>
+                            <span class="metric-value" id="cellular-sub-speed">0 Mbps</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Plan</span>
+                            <span class="metric-value" id="cellular-sub-plan">Standard 50GB</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Remaining</span>
+                            <span class="metric-value limited" id="cellular-sub-limit">32.5&nbsp;GB</span>
+                        </div>
+                    </div>
+
+                    <div class="device-chart">
+                        <h5 class="chart-subtitle">Data Usage History</h5>
+                        <div class="device-chart-container">
+                            <canvas id="cellular-subChart" width="300" height="120"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="device-controls">
+                        <button class="toggle-btn" id="cellular-sub-toggle" data-device="cellular-sub">
+                            Enable
+                            <i class="fas fa-power-off"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- WiFi Device -->
+                <div class="device-card wifi" data-device="wifi">
+                    <div class="device-header">
+                        <div class="device-icon">
+                            <i class="fas fa-wifi"></i>
+                        </div>
+                        <div class="device-info">
+                            <h3 class="device-name">WiFi</h3>
+                            <span class="device-type">802.11ac</span>
+                        </div>
+                        <div class="device-status">
+                            <span class="status-indicator" id="wifi-status"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="device-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Signal Strength</span>
+                            <div class="signal-bars" id="wifi-signal">
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Data Usage</span>
+                            <span class="metric-value" id="wifi-data">0&nbsp;GB</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Speed</span>
+                            <span class="metric-value" id="wifi-speed">0 Mbps</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Plan</span>
+                            <span class="metric-value" id="wifi-plan">Business Unlimited</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Data Limit</span>
+                            <span class="metric-value unlimited" id="wifi-limit">Unlimited</span>
+                        </div>
+                    </div>
+
+                    <div class="device-chart">
+                        <h5 class="chart-subtitle">Data Usage History</h5>
+                        <div class="device-chart-container">
+                            <canvas id="wifiChart" width="300" height="120"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="device-controls">
+                        <button class="toggle-btn" id="wifi-toggle" data-device="wifi">
+                            Enable
+                            <i class="fas fa-power-off"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Satellite Device -->
+                <div class="device-card satellite" data-device="satellite">
+                    <div class="device-header">
+                        <div class="device-icon">
+                            <i class="fas fa-satellite-dish"></i>
+                        </div>
+                        <div class="device-info">
+                            <h3 class="device-name">Satellite</h3>
+                            <span class="device-type">Starlink</span>
+                        </div>
+                        <div class="device-status">
+                            <span class="status-indicator" id="satellite-status"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="device-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Signal Strength</span>
+                            <div class="signal-bars" id="satellite-signal">
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Data Usage</span>
+                            <span class="metric-value" id="satellite-data">0&nbsp;GB</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Speed</span>
+                            <span class="metric-value" id="satellite-speed">0 Mbps</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Plan</span>
+                            <span class="metric-value" id="satellite-plan">Enterprise 200GB</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Remaining</span>
+                            <span class="metric-value limited" id="satellite-limit">147.3&nbsp;GB</span>
+                        </div>
+                    </div>
+
+                    <div class="device-chart">
+                        <h5 class="chart-subtitle">Data Usage History</h5>
+                        <div class="device-chart-container">
+                            <canvas id="satelliteChart" width="300" height="120"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="device-controls">
+                        <button class="toggle-btn" id="satellite-toggle" data-device="satellite">
+                            Enable
+                            <i class="fas fa-power-off"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
