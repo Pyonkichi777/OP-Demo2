@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Network Orchestrator Platform - Demo</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -15,10 +15,14 @@
                 <div class="title-section">
                     <h1 class="app-title">
                         <i class="fas fa-network-wired"></i>
-                        <span class="glow-text">Device Orchestrator Platform Demo</span>
+                        <span class="title-text">Device Orchestrator Platform Demo</span>
                     </h1>
                 </div>
                 <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Region</span>
+                        <span class="stat-value" id="region">Japan</span>
+                    </div>
                     <div class="stat-item">
                         <span class="stat-label">Total Data Usage</span>
                         <span class="stat-value" id="totalData">0&nbsp;GB</span>
@@ -38,9 +42,6 @@
                     <div class="alert-header">
                         <i class="fas fa-exclamation-triangle"></i>
                         <h4>Fault Information</h4>
-                        <button class="alert-refresh-btn" title="Update Fault Information">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
                     </div>
                     <div class="alert-content">
                         <div class="alert-item">
@@ -65,9 +66,6 @@
                     <div class="alert-header">
                         <i class="fas fa-tools"></i>
                         <h4>Maintenance Information</h4>
-                        <button class="alert-refresh-btn" title="Update Maintenance Information">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
                     </div>
                     <div class="alert-content">
                         <div class="alert-item">
@@ -98,10 +96,6 @@
                     <button class="control-btn secondary">
                         <i class="fas fa-download"></i>
                         Export Data
-                    </button>
-                    <button class="control-btn warning">
-                        <i class="fas fa-sync-alt"></i>
-                        Refresh
                     </button>
                 </div>
                 
@@ -138,7 +132,6 @@
                             <div class="table-cell">Speed</div>
                             <div class="table-cell">Plan</div>
                             <div class="table-cell">Data Usage</div>
-                            <div class="table-cell">Action</div>
                         </div>
                         <div class="table-row" data-device="cellular-main">
                             <div class="table-cell">
@@ -154,9 +147,6 @@
                             <div class="table-cell" id="modal-cellular-main-speed">0 Mbps</div>
                             <div class="table-cell" id="modal-cellular-main-plan">Premium Unlimited</div>
                             <div class="table-cell" id="modal-cellular-main-data">0&nbsp;GB</div>
-                            <div class="table-cell">
-                                <button class="table-toggle-btn" data-device="cellular-main">Toggle</button>
-                            </div>
                         </div>
                         <div class="table-row" data-device="cellular-sub">
                             <div class="table-cell">
@@ -172,9 +162,6 @@
                             <div class="table-cell" id="modal-cellular-sub-speed">0 Mbps</div>
                             <div class="table-cell" id="modal-cellular-sub-plan">Standard 50GB</div>
                             <div class="table-cell" id="modal-cellular-sub-data">0&nbsp;GB</div>
-                            <div class="table-cell">
-                                <button class="table-toggle-btn" data-device="cellular-sub">Toggle</button>
-                            </div>
                         </div>
                         <div class="table-row" data-device="wifi">
                             <div class="table-cell">
@@ -190,9 +177,6 @@
                             <div class="table-cell" id="modal-wifi-speed">0 Mbps</div>
                             <div class="table-cell" id="modal-wifi-plan">Business Unlimited</div>
                             <div class="table-cell" id="modal-wifi-data">0&nbsp;GB</div>
-                            <div class="table-cell">
-                                <button class="table-toggle-btn" data-device="wifi">Toggle</button>
-                            </div>
                         </div>
                         <div class="table-row" data-device="satellite">
                             <div class="table-cell">
@@ -208,9 +192,6 @@
                             <div class="table-cell" id="modal-satellite-speed">0 Mbps</div>
                             <div class="table-cell" id="modal-satellite-plan">Enterprise 200GB</div>
                             <div class="table-cell" id="modal-satellite-data">0&nbsp;GB</div>
-                            <div class="table-cell">
-                                <button class="table-toggle-btn" data-device="satellite">Toggle</button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -271,10 +252,13 @@
                     </div>
 
                     <div class="device-controls">
-                        <button class="toggle-btn" id="cellular-main-toggle" data-device="cellular-main">
-                            Enable
-                            <i class="fas fa-power-off"></i>
-                        </button>
+                        <div class="toggle-switch-container">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="cellular-main-toggle" data-device="cellular-main" class="device-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-label" id="cellular-main-label">Enable Device</span>
+                        </div>
                     </div>
                 </div>
 
@@ -330,10 +314,13 @@
                     </div>
 
                     <div class="device-controls">
-                        <button class="toggle-btn" id="cellular-sub-toggle" data-device="cellular-sub">
-                            Enable
-                            <i class="fas fa-power-off"></i>
-                        </button>
+                        <div class="toggle-switch-container">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="cellular-sub-toggle" data-device="cellular-sub" class="device-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-label" id="cellular-sub-label">Enable Device</span>
+                        </div>
                     </div>
                 </div>
 
@@ -389,10 +376,13 @@
                     </div>
 
                     <div class="device-controls">
-                        <button class="toggle-btn" id="wifi-toggle" data-device="wifi">
-                            Enable
-                            <i class="fas fa-power-off"></i>
-                        </button>
+                        <div class="toggle-switch-container">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="wifi-toggle" data-device="wifi" class="device-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-label" id="wifi-label">Enable Device</span>
+                        </div>
                     </div>
                 </div>
 
@@ -448,14 +438,33 @@
                     </div>
 
                     <div class="device-controls">
-                        <button class="toggle-btn" id="satellite-toggle" data-device="satellite">
-                            Enable
-                            <i class="fas fa-power-off"></i>
-                        </button>
+                        <div class="toggle-switch-container">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="satellite-toggle" data-device="satellite" class="device-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-label" id="satellite-label">Enable Device</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="confirmation-modal" id="confirmationModal">
+        <div class="confirmation-modal-content">
+            <div class="confirmation-header">
+                <h3 id="confirmationTitle">Confirm Action</h3>
+            </div>
+            <div class="confirmation-body">
+                <p id="confirmationMessage">Are you sure you want to change this device state?</p>
+            </div>
+            <div class="confirmation-actions">
+                <button class="confirm-btn cancel" id="cancelBtn">Cancel</button>
+                <button class="confirm-btn confirm" id="confirmBtn">Confirm</button>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>

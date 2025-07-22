@@ -88,15 +88,40 @@ class DeviceAggregator {
 
     attachEventListeners() {
         Object.keys(this.devices).forEach(deviceType => {
-            const toggleBtn = document.getElementById(`${deviceType}-toggle`);
-            if (toggleBtn) {
-                toggleBtn.addEventListener('click', () => this.toggleDevice(deviceType));
+            const toggleCheckbox = document.getElementById(`${deviceType}-toggle`);
+            if (toggleCheckbox) {
+                toggleCheckbox.addEventListener('change', (e) => {
+                    e.preventDefault();
+                    const isChecked = e.target.checked;
+                    // Reset checkbox state until confirmed
+                    e.target.checked = !isChecked;
+                    this.showConfirmation(deviceType, isChecked);
+                });
             }
         });
 
         const deviceListBtn = document.querySelector('.control-btn.primary');
         if (deviceListBtn) {
             deviceListBtn.addEventListener('click', () => this.showDeviceList());
+        }
+
+        // Confirmation modal event listeners
+        const confirmBtn = document.getElementById('confirmBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const confirmationModal = document.getElementById('confirmationModal');
+        
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', () => this.handleConfirmation(true));
+        }
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => this.handleConfirmation(false));
+        }
+        if (confirmationModal) {
+            confirmationModal.addEventListener('click', (e) => {
+                if (e.target === confirmationModal) {
+                    this.handleConfirmation(false);
+                }
+            });
         }
     }
 
@@ -140,9 +165,13 @@ class DeviceAggregator {
         this.updateChart();
         this.updateDeviceListModal();
         
-        const toggleBtn = document.getElementById(`${deviceType}-toggle`);
-        if (toggleBtn) {
-            toggleBtn.classList.toggle('active', device.active);
+        const toggleCheckbox = document.getElementById(`${deviceType}-toggle`);
+        const toggleLabel = document.getElementById(`${deviceType}-label`);
+        if (toggleCheckbox) {
+            toggleCheckbox.checked = device.active;
+        }
+        if (toggleLabel) {
+            toggleLabel.textContent = device.active ? 'Disable Device' : 'Enable Device';
         }
         
         const deviceCard = document.querySelector(`.device-card[data-device="${deviceType}"]`);
@@ -200,10 +229,7 @@ class DeviceAggregator {
             }
         }
 
-        const toggleBtn = document.getElementById(`${deviceType}-toggle`);
-        if (toggleBtn) {
-            toggleBtn.innerHTML = `${device.active ? 'Disable' : 'Enable'} <i class="fas fa-power-off"></i>`;
-        }
+        // Toggle label is updated in the main updateUI method
     }
 
     updateGlobalStats() {
@@ -478,13 +504,6 @@ class DeviceAggregator {
             });
         });
 
-        // Add event listeners for refresh buttons
-        document.querySelectorAll('.alert-refresh-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.refreshAlertSection(btn);
-            });
-        });
     }
 
     showDeviceList() {
@@ -539,19 +558,88 @@ class DeviceAggregator {
         });
     }
 
-    refreshAlertSection(button) {
-        const alertCard = button.closest('.alert-card');
+
+    showConfirmation(deviceType, newState) {
+        const device = this.devices[deviceType];
+        const modal = document.getElementById('confirmationModal');
+        const title = document.getElementById('confirmationTitle');
+        const message = document.getElementById('confirmationMessage');
         
-        // Add loading state
-        button.classList.add('loading');
-        alertCard.classList.add('loading');
-        
-        // Simulate loading time
-        setTimeout(() => {
-            button.classList.remove('loading');
-            alertCard.classList.remove('loading');
-        }, 2000);
+        if (modal && title && message) {
+            const action = newState ? 'enable' : 'disable';
+            title.textContent = `Confirm ${action.charAt(0).toUpperCase() + action.slice(1)} Device`;
+            message.textContent = `Are you sure you want to ${action} ${device.name}?`;
+            
+            this.pendingToggle = { deviceType, newState };
+            modal.classList.add('active');
+        }
     }
+
+    handleConfirmation(confirmed) {
+        const modal = document.getElementById('confirmationModal');
+        
+        if (confirmed && this.pendingToggle) {
+            const { deviceType, newState } = this.pendingToggle;
+            const toggleCheckbox = document.getElementById(`${deviceType}-toggle`);
+            
+            if (toggleCheckbox) {
+                toggleCheckbox.checked = newState;
+            }
+            
+            this.confirmToggleDevice(deviceType, newState);
+        }
+        
+        this.pendingToggle = null;
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    confirmToggleDevice(deviceType, newState) {
+        const device = this.devices[deviceType];
+        
+        if (newState) {
+            // Disable all other devices when enabling this one
+            Object.keys(this.devices).forEach(otherDeviceType => {
+                if (otherDeviceType !== deviceType) {
+                    this.devices[otherDeviceType].active = false;
+                    this.devices[otherDeviceType].signalStrength = 0;
+                    this.devices[otherDeviceType].speed = 0;
+                    
+                    // Update UI for other devices
+                    const otherToggleCheckbox = document.getElementById(`${otherDeviceType}-toggle`);
+                    if (otherToggleCheckbox) {
+                        otherToggleCheckbox.checked = false;
+                    }
+                    
+                    const otherDeviceCard = document.querySelector(`.device-card[data-device="${otherDeviceType}"]`);
+                    if (otherDeviceCard) {
+                        otherDeviceCard.classList.remove('active');
+                    }
+                }
+            });
+            
+            // Enable the selected device
+            device.active = true;
+            device.signalStrength = Math.floor(Math.random() * 5) + 1;
+            device.speed = Math.random() * 100 + 10;
+        } else {
+            // Disable the device
+            device.active = false;
+            device.signalStrength = 0;
+            device.speed = 0;
+        }
+        
+        this.updateUI();
+        this.updateChart();
+        this.updateDeviceListModal();
+        
+        const deviceCard = document.querySelector(`.device-card[data-device="${deviceType}"]`);
+        if (deviceCard) {
+            deviceCard.classList.toggle('active', device.active);
+        }
+    }
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {
